@@ -12,7 +12,7 @@ class targetElevator {
        public int downButtonTarget = 0;
    }
 
-DEFINE Elevator USING Id AND Button AND Direction AND maximumCapacity AND Position AND Door AND Display AND amountOffFloor AND speed
+DEFINE Elevator USING Id AND Button AND Direction AND maximumCapacity AND Position AND Door AND Display AND floor AND speed
     FOR EACH NEW INTANCE OF Elevator
         SET Id TO id
         SET ButtonList WITH Button
@@ -25,7 +25,7 @@ DEFINE Elevator USING Id AND Button AND Direction AND maximumCapacity AND Positi
     ENDFOR
 
 
-SEQUENCE CHOOSE AN ELEVATOR FROM THE HALL
+SEQUENCE OUTSIDE ORDER
 		FOR  increment of i  to i =2 
            	if(elevators[i].status == Elevator.PAUSE) {
             distance = Math.abs(outsideCurFloor-elevators[i].currentFloor);
@@ -85,7 +85,7 @@ ENDSEQUENCE
 SEQUENCE CLOSE_BUTTON
 FOR increment of i  to i = 2 
 IF elevator = stop THEN
-	IF close_door button is pressed && capacity < maximumCapacity THEN
+	IF close_door button is pressed && capacity < maximumCapacity && door.path is clear && wait 5 secongs THEN
 		“close door”
 ELSE IF elevator != “at a floor” THEN
 	IF close_door button is pressed THEN
@@ -96,31 +96,31 @@ ENDSEQUENCE
 
 SEQUENCE REST 
 FOR increment of i to i = 2
-IF current_floor != 1 THEN
-	 THEN
-		currentQueue = blank
-		nextQueue = blank
-		current_floor = 1
+IF current_floor = next_floor in currentQueue - 1 THEN
+	 slow down speed =  0.5speed;
+	stop at next_floor in currentQueue
+ELSE IF speed = maximum THEN
+	IF current_floor = next_floor in currentQueue + 1 THEN
+		slow down speed = 0.5 speed;
+		stop at next_floor in currentQueue
 	ELSE
 		continue
 ELSE
 	do nothing
 END SEQUENCE 
 
-
-
 MOVE 
 WHILE currentQueue != blank OR nextQueue != blank &&  capacity <= maximumCapacity DO
 	MOVE
 	ELSE continue
-	IF CALL_BUTTON = pressed THEN RUN CHOOSE AN ELEVATOR
+	IF CALL_BUTTON = pressed THEN RUN OUTSIDE ORDER
 		IF elevator = Closest Elevator  && same direction to the callFloor, THEN ACCEPT THE PASSENGER.
 		IF elevator1 = elevator2 = Same distance to the callFloor, THEN RightElevator ACCEPT THE PASSENGER. 
 		IF Both Elevator Idle THEN Closet Elevator ACCEPT THE PASSENGER.
 		IF One idle and one moving opposite direction THEN idle ACCEPT A PASSENGER.
 		IF One idle and one moving same direction THEN one moving same direction ACCEPT A PASSENGER.
 ACCEPT A PASSENGER
-WHILE elevator door is open DO
+WHILE elevator door is open DO CALL CLOSE_BUTTON
 	wait 5 seconds
 	check if a human is on the door path
 	IF there is a human is on the door path DO
@@ -130,6 +130,8 @@ WHILE elevator door is open DO
 			check if a human is on the door path
 	ELSE IF there is no human is on the door path DO
 		CLOSE ELEVATOR
+
+
 		IF next_floor in currentQueue > current_floor THEN
 			IF selected_floor_button > current_floor THEN
 				add to currentQueue
@@ -148,7 +150,7 @@ WHILE elevator door is open DO
 				CLOSE ELEVATOR
 ELSE
 	MOVE
-CALL ELEVATOR
+CALL INSIDE ORDER
 IF currentQueue OR nextQueue != AND call_button = pressed THEN
 	IF next_floor in currentQueue > elevator floor THEN
 		IF call_button floor > elevator floor THEN
@@ -174,7 +176,7 @@ GO UP		ARRIVE AT DESTINATION
 		currentQueue = nextQueue
 		nextQueue = blank
 ELSE
-REST
+CALL REST
  ARRIVE AT DESTINATION
 FOR increment of i to i = 2
 IF speed = maximum THEN
@@ -186,4 +188,4 @@ ELSE IF speed = maximum THEN
 		slow down
 		stop at next_floor in currentQueue
 ELSE IF currentQueue and nextQueue = blank THEN
-REST
+CALL REST
