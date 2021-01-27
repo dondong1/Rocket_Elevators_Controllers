@@ -1,0 +1,189 @@
+CLASS column [elevator1, elevator2]
+CLASS elevators [ID, ButtonList, Direction, maximumCapacity, Position, Door, Display, amountOffFloor AND speed]]
+CLASS floors [10]
+CLASS Button[insideFloorButtons, outsideFloorButtons, outsideUpButtons, outsideDownButtons, openButton, closeButton];
+Button.insideFloorButtons = new Button[10];
+Button.outsideFloorButtons = new Button[10];
+Button.outsideUpButtons = new Button[1]
+Button.outsideDownButtons = new Button[1]
+Button.openButton = new Button();
+class targetElevator {
+       public int upButtonTarget = 0;
+       public int downButtonTarget = 0;
+   }
+
+DEFINE Elevator USING Id AND Button AND Direction AND maximumCapacity AND Position AND Door AND Display AND amountOffFloor AND speed
+    FOR EACH NEW INTANCE OF Elevator
+        SET Id TO id
+        SET ButtonList WITH Button
+        SET Position TO currentFloor Id
+        SET Status TO Idle
+        SET Door TO close
+        SET Display TO Position
+        ADD 1 TO count
+		SET speed TO 0
+    ENDFOR
+
+
+SEQUENCE CHOOSE AN ELEVATOR FROM THE HALL
+		FOR  increment of i  to i =2 
+           	if(elevators[i].status == Elevator.PAUSE) {
+            distance = Math.abs(outsideCurFloor-elevators[i].currentFloor);
+            nearestElevatorIndex = i;
+		 	if(nearestElevatorIndex != 0) {
+            if(outsideCurFloor - elevators[nearestElevatorIndex].currentFloor > 0) {
+                elevators[nearestElevatorIndex].upQueue.add(outsideCurFloor);
+            } else if(outsideCurFloor - elevators[nearestElevatorIndex].currentFloor < 0){
+                elevators[nearestElevatorIndex].downQueue.add(outsideCurFloor);
+            } else if(outsideCurFloor - elevators[nearestElevatorIndex].currentFloor == 0) {
+                elevators[nearestElevatorIndex].upQueue.add(outsideCurFloor);
+            }
+            eachFloorTarget[outsideCurFloor].upButtonTarget = nearestElevatorIndex;
+        }}
+ENDSEQUENCE
+
+SEQUENCE INSIDE ORDERS
+		SEQUENCE INIT CHOOSE FLOOR FOR INSIDE ORDER
+		FOR increment of i to i = 10
+    		IF (insideFloorButtons[i] != null) {
+                final int chosenFloor = i;
+                insideFloorButtons[i].setOnAction((event) -> {
+                    CHOOSE FLOOR 
+					SEQUENCE CHOOSE FLOOR
+							int elevatorIndex =0;
+        					for(int i = 1; i <= 2; i++) {
+           					 if(allChooseEle[i].isSelected() == true) {
+               				 elevatorIndex = i;}
+         
+       						 if(elevators[elevatorIndex].currentFloor != chosenFloor) {
+            				insideFloorButtons[chosenFloor] GET GREEN COLOR
+        						}
+        					if(chosenFloor > elevators[elevatorIndex].currentFloor) {
+
+            				elevators[elevatorIndex].upQueue.add(chosenFloor);
+       						 }
+        					if(chosenFloor < elevators[elevatorIndex].currentFloor) {
+           					 elevators[elevatorIndex].downQueue.add(chosenFloor);
+					ENDSEQUENCE
+
+		ENDSEQUENCE
+		
+ENDSEQUENCE
+
+SEQUENCE OPEN_BUTTON
+FOR increment of i  to i = 2 
+IF elevator = stop THEN
+	IF open_door button is pressed THEN
+		“open door”
+ELSE IF elevator != “at a floor” THEN
+	IF open_door button is pressed THEN
+		do nothing
+ELSE
+	do nothing
+ENDSEQUENCE
+
+SEQUENCE CLOSE_BUTTON
+FOR increment of i  to i = 2 
+IF elevator = stop THEN
+	IF close_door button is pressed && capacity < maximumCapacity THEN
+		“close door”
+ELSE IF elevator != “at a floor” THEN
+	IF close_door button is pressed THEN
+		do nothing
+ELSE
+	do nothing
+ENDSEQUENCE
+
+SEQUENCE REST 
+FOR increment of i to i = 2
+IF current_floor != 1 THEN
+	 THEN
+		currentQueue = blank
+		nextQueue = blank
+		current_floor = 1
+	ELSE
+		continue
+ELSE
+	do nothing
+END SEQUENCE 
+
+
+
+MOVE 
+WHILE currentQueue != blank OR nextQueue != blank &&  capacity <= maximumCapacity DO
+	MOVE
+	ELSE continue
+	IF CALL_BUTTON = pressed THEN RUN CHOOSE AN ELEVATOR
+		IF elevator = Closest Elevator  && same direction to the callFloor, THEN ACCEPT THE PASSENGER.
+		IF elevator1 = elevator2 = Same distance to the callFloor, THEN RightElevator ACCEPT THE PASSENGER. 
+		IF Both Elevator Idle THEN Closet Elevator ACCEPT THE PASSENGER.
+		IF One idle and one moving opposite direction THEN idle ACCEPT A PASSENGER.
+		IF One idle and one moving same direction THEN one moving same direction ACCEPT A PASSENGER.
+ACCEPT A PASSENGER
+WHILE elevator door is open DO
+	wait 5 seconds
+	check if a human is on the door path
+	IF there is a human is on the door path DO
+    
+    WHILE there is a human is on the door path
+			wait 2 seconds
+			check if a human is on the door path
+	ELSE IF there is no human is on the door path DO
+		CLOSE ELEVATOR
+		IF next_floor in currentQueue > current_floor THEN
+			IF selected_floor_button > current_floor THEN
+				add to currentQueue
+			ELSE
+				add to nextQueue
+		ELSE
+			IF selected_floor_button < current_floor THEN
+				add to currentQueue
+			ELSE
+				add to nextQueue
+	ELSE IF door close button pressed DO
+		check if a human is on the door path
+			IF human is on the door path DO
+				nothing
+			ELSE
+				CLOSE ELEVATOR
+ELSE
+	MOVE
+CALL ELEVATOR
+IF currentQueue OR nextQueue != AND call_button = pressed THEN
+	IF next_floor in currentQueue > elevator floor THEN
+		IF call_button floor > elevator floor THEN
+			add to currentQueue
+		ELSE
+			add to nextQueue
+	ELSE
+		IF call_button floor < elevator floor THEN
+			add to currentQueue
+		ELSE
+			add to nextQueue
+ELSE
+	MOVE
+
+MOVE
+WHILE currentQueue AND nextQueue have floors in them DO
+	IF next_floor in currentQueue > current_floor THEN
+GO UP		ARRIVE AT DESTINATION
+	ELSE IF next_floor in currentQueue < current_floor THEN
+		speed = maximum
+		ARRIVE AT DESTINATION
+	ELSE IF no floor in currentQueue THEN
+		currentQueue = nextQueue
+		nextQueue = blank
+ELSE
+REST
+ ARRIVE AT DESTINATION
+FOR increment of i to i = 2
+IF speed = maximum THEN
+	IF current_floor = next_floor in currentQueue - 1 THEN
+		slow down
+		stop at next_floor in currentQueue
+ELSE IF speed = maximum THEN
+	IF current_floor = next_floor in currentQueue + 1 THEN
+		slow down
+		stop at next_floor in currentQueue
+ELSE IF currentQueue and nextQueue = blank THEN
+REST
