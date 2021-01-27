@@ -1,11 +1,11 @@
-CLASS column [elevator1, elevator2]
-CLASS elevators [ID, ButtonList, Direction, maximumCapacity, Position, Door, Display, amountOffFloor AND speed]]
-CLASS floors [10]
-CLASS Button[insideFloorButtons, outsideFloorButtons, outsideUpButtons, outsideDownButtons, openButton, closeButton];
+CLASS column = new column [elevator1, elevator2]
+CLASS elevators = new elevators [ID, ButtonList, Direction, maximumCapacity, Position, Door, Display, amountOffFloor AND speed]]
+CLASS floors = new floors [10] 
+CLASS Button = new Button[insideFloorButtons, outsideFloorButtons, outsideupButtons, outsidedownButtons, openButton, closeButton];
 Button.insideFloorButtons = new Button[10];
 Button.outsideFloorButtons = new Button[10];
-Button.outsideUpButtons = new Button[1]
-Button.outsideDownButtons = new Button[1]
+Button.outsideupButtons = new Button[1]
+Button.outsidedownButtons = new Button[1]
 Button.openButton = new Button();
 class targetElevator {
        public int upButtonTarget = 0;
@@ -24,12 +24,65 @@ DEFINE Elevator USING Id AND Button AND Direction AND maximumCapacity AND Positi
 		SET speed TO 0
     ENDFOR
 
+SEQUENCE OPEN_BUTTON
 
-SEQUENCE OUTSIDE ORDER
-		FOR  increment of i  to i =2 
-           	if(elevators[i].status == Elevator.PAUSE) {
+        initOpenButton() {
+        openButton.setOnAction((event -> {
+            int elevatorIndex =0;
+            for(int i = 1; i <= 2; i++) {
+                if(elevators[i].isSelected() == true) {
+                    elevatorIndex = i;
+                }
+            }
+            if(elevators[elevatorIndex].isTmpStay == true || elevators[elevatorIndex].status == Elevator.Idle) {
+                if (elevators[elevatorIndex].status == Elevator.up || elevators[elevatorIndex].status == Elevator.Idle) {
+                    elevators[elevatorIndex].upQueue.add(elevators[elevatorIndex].currentFloor);
+                } else if (elevators[elevatorIndex].status == Elevator.down) {
+                    elevators[elevatorIndex].downQueue.add(elevators[elevatorIndex].currentFloor);
+ENDSEQUENCE
+
+SEQUENCE OUTSIDE downORDER
+		FOR  increment of i  to i =2  {
+            SET currentElevator to element i of elevators
+            IF currentElevator status IS down
+            int nearestElevatorIndex = 0;
+            int busyElevator = eachFloorTarget[outsideCurFloor].downButtonTarget;
+            if(currentElevator != busyElevator && elevators[i].status == Elevator.down && elevators[i].currentFloor>= outsideCurFloor) {
+                int distance = elevators[i].currentFloor - outsideCurFloor;
+                nearestElevatorIndex = i;
+
+            IF currentElevator status IS Idle   
+           	if(elevators[i].status == Elevator.Idle) {
             distance = Math.abs(outsideCurFloor-elevators[i].currentFloor);
             nearestElevatorIndex = i;
+
+		 	if(nearestElevatorIndex != 0) {
+            if(outsideCurFloor - elevators[nearestElevatorIndex].currentFloor > 0) {
+            elevators[nearestElevatorIndex].upQueue.add(outsideCurFloor);
+            } else if(outsideCurFloor - elevators[nearestElevatorIndex].currentFloor < 0){
+            elevators[nearestElevatorIndex].downQueue.add(outsideCurFloor);
+            } else if(outsideCurFloor - elevators[nearestElevatorIndex].currentFloor == 0) {
+            elevators[nearestElevatorIndex].upQueue.add(outsideCurFloor);
+            }
+            eachFloorTarget[outsideCurFloor].upButtonTarget = nearestElevatorIndex;
+        }}
+ENDSEQUENCE
+SEQUENCE OUTSIDE upORDER
+		FOR  increment of i  to i =2 
+            SET currentElevator to element i of elevators
+            int nearestElevatorIndex = 0;
+            int busyElevator = eachFloorTarget[outsideCurFloor].upButtonTarget;
+            IF currentElevator status IS up
+            if(currentElevator != busyElevator && elevators[i].status == Elevator.up && elevators[i].currentFloor>= outsideCurFloor) {
+                int distance = elevators[i].currentFloor - outsideCurFloor;
+                nearestElevatorIndex = i;
+
+            IF currentElevator status IS Idle  
+           	if(elevators[i].status == Elevator.Idle) {
+            distance = Math.abs(outsideCurFloor-elevators[i].currentFloor);
+            nearestElevatorIndex = i;
+
+
 		 	if(nearestElevatorIndex != 0) {
             if(outsideCurFloor - elevators[nearestElevatorIndex].currentFloor > 0) {
                 elevators[nearestElevatorIndex].upQueue.add(outsideCurFloor);
@@ -41,7 +94,6 @@ SEQUENCE OUTSIDE ORDER
             eachFloorTarget[outsideCurFloor].upButtonTarget = nearestElevatorIndex;
         }}
 ENDSEQUENCE
-
 SEQUENCE INSIDE ORDERS
 		SEQUENCE INIT CHOOSE FLOOR FOR INSIDE ORDER
 		FOR increment of i to i = 10
@@ -49,11 +101,12 @@ SEQUENCE INSIDE ORDERS
                 final int chosenFloor = i;
                 insideFloorButtons[i].setOnAction((event) -> {
                     CHOOSE FLOOR 
-					SEQUENCE CHOOSE FLOOR
+					
+                    SEQUENCE CHOOSE FLOOR
 							int elevatorIndex =0;
         					for(int i = 1; i <= 2; i++) {
-           					 if(allChooseEle[i].isSelected() == true) {
-               				 elevatorIndex = i;}
+           					if(elevators[i].isSelected() == true) {
+               				elevatorIndex = i;}
          
        						 if(elevators[elevatorIndex].currentFloor != chosenFloor) {
             				insideFloorButtons[chosenFloor] GET GREEN COLOR
@@ -109,7 +162,7 @@ ELSE
 	do nothing
 END SEQUENCE 
 
-MOVE 
+
 WHILE currentQueue != blank OR nextQueue != blank &&  capacity <= maximumCapacity DO
 	MOVE
 	ELSE continue
@@ -130,8 +183,6 @@ WHILE elevator door is open DO CALL CLOSE_BUTTON
 			check if a human is on the door path
 	ELSE IF there is no human is on the door path DO
 		CLOSE ELEVATOR
-
-
 		IF next_floor in currentQueue > current_floor THEN
 			IF selected_floor_button > current_floor THEN
 				add to currentQueue
@@ -168,7 +219,7 @@ ELSE
 MOVE
 WHILE currentQueue AND nextQueue have floors in them DO
 	IF next_floor in currentQueue > current_floor THEN
-GO UP		ARRIVE AT DESTINATION
+GO up		ARRIVE AT DESTINATION
 	ELSE IF next_floor in currentQueue < current_floor THEN
 		speed = maximum
 		ARRIVE AT DESTINATION
