@@ -1,7 +1,7 @@
-CLASS elevators = new elevators [ButtonList, Direction, maximumCapacity, Position, Door, Display, amountOffFloor AND speed]]
+OBJECT elevators = new elevators [ButtonList, Direction, maximumCapacity, Position, Door, Display, amountOffFloor AND speed]]
 CLASS floors = new floors [10] 
 CLASS Button = new Button[insideFloorButtons, outsideFloorButtons, outsideupButtons, outsidedownButtons, openButton, closeButton];
-elevators = new elevators [2];
+elevators = new elevators [4];
 Button.insideFloorButtons = new Button[10];
 Button.outsideFloorButtons = new Button[10];
 Button.outsideupButtons = new Button[1]
@@ -54,18 +54,18 @@ SEQUENCE OUTSIDE downORDER
                 nearestElevatorIndex = i;
 
             IF currentElevator status IS Idle   
-           	if(elevators[i].status == Elevator.Idle) {
-            distance = Math.abs(outsideCurFloor-elevators[i].currentFloor);
-            nearestElevatorIndex = i;
+           		if(elevators[i].status == Elevator.Idle) {
+            		distance = Math.abs(outsideCurFloor-elevators[i].currentFloor);
+            		nearestElevatorIndex = i;
 
 		 	if(nearestElevatorIndex != 0) {
-            if(outsideCurFloor - elevators[nearestElevatorIndex].currentFloor > 0) {
-            elevators[nearestElevatorIndex].upQueue.add(outsideCurFloor);
-            } else if(outsideCurFloor - elevators[nearestElevatorIndex].currentFloor < 0){
-            elevators[nearestElevatorIndex].downQueue.add(outsideCurFloor);
-            } else if(outsideCurFloor - elevators[nearestElevatorIndex].currentFloor == 0) {
-            elevators[nearestElevatorIndex].upQueue.add(outsideCurFloor);
-            }
+            	if(outsideCurFloor - elevators[nearestElevatorIndex].currentFloor > 0) {
+           			 elevators[nearestElevatorIndex].upQueue.add(outsideCurFloor);
+           		} else if(outsideCurFloor - elevators[nearestElevatorIndex].currentFloor < 0){
+           			 elevators[nearestElevatorIndex].downQueue.add(outsideCurFloor);
+            	} else if(outsideCurFloor - elevators[nearestElevatorIndex].currentFloor == 0) {
+            		elevators[nearestElevatorIndex].upQueue.add(outsideCurFloor);
+           		 }
             eachFloorTarget[outsideCurFloor].upButtonTarget = nearestElevatorIndex;
         }}
 ENDSEQUENCE
@@ -75,23 +75,23 @@ SEQUENCE OUTSIDE upORDER
             int nearestElevatorIndex = 0;
             int busyElevator = eachFloorTarget[outsideCurFloor].upButtonTarget;
             IF currentElevator status IS up
-            if(currentElevator != busyElevator && elevators[i].status == Elevator.up && elevators[i].currentFloor>= outsideCurFloor) {
-                int distance = elevators[i].currentFloor - outsideCurFloor;
-                nearestElevatorIndex = i;
+            	if(currentElevator != busyElevator && elevators[i].status == Elevator.up && elevators[i].currentFloor>= outsideCurFloor) {
+                	int distance = elevators[i].currentFloor - outsideCurFloor;
+                	nearestElevatorIndex = i;
 
             IF currentElevator status IS Idle  
-           	if(elevators[i].status == Elevator.Idle) {
-            distance = Math.abs(outsideCurFloor-elevators[i].currentFloor);
-            nearestElevatorIndex = i;
+           		if(elevators[i].status == Elevator.Idle) {
+            		distance = Math.abs(outsideCurFloor-elevators[i].currentFloor);
+            		nearestElevatorIndex = i;
 
 
 		 	if(nearestElevatorIndex != 0) {
-            if(outsideCurFloor - elevators[nearestElevatorIndex].currentFloor > 0) {
-                elevators[nearestElevatorIndex].upQueue.add(outsideCurFloor);
-            } else if(outsideCurFloor - elevators[nearestElevatorIndex].currentFloor < 0){
-                elevators[nearestElevatorIndex].downQueue.add(outsideCurFloor);
-            } else if(outsideCurFloor - elevators[nearestElevatorIndex].currentFloor == 0) {
-                elevators[nearestElevatorIndex].upQueue.add(outsideCurFloor);
+            	if(outsideCurFloor - elevators[nearestElevatorIndex].currentFloor > 0) {
+                	elevators[nearestElevatorIndex].upQueue.add(outsideCurFloor);
+            	} else if(outsideCurFloor - elevators[nearestElevatorIndex].currentFloor < 0){
+                	elevators[nearestElevatorIndex].downQueue.add(outsideCurFloor);
+            	} else if(outsideCurFloor - elevators[nearestElevatorIndex].currentFloor == 0) {
+                	elevators[nearestElevatorIndex].upQueue.add(outsideCurFloor);
             }
             eachFloorTarget[outsideCurFloor].upButtonTarget = nearestElevatorIndex;
         }}
@@ -108,17 +108,16 @@ SEQUENCE INSIDE ORDERS
 							int elevatorIndex =0;
         					for(int i = 1; i <= 2; i++) {
            					if(elevators[i].isSelected() == true) {
-               				elevatorIndex = i;}
+               					elevatorIndex = i;}
          
        						 if(elevators[elevatorIndex].currentFloor != chosenFloor) {
-            				insideFloorButtons[chosenFloor] GET GREEN COLOR
+            					insideFloorButtons[chosenFloor] GET GREEN COLOR
         						}
         					if(chosenFloor > elevators[elevatorIndex].currentFloor) {
-
-            				elevators[elevatorIndex].upQueue.add(chosenFloor);
+            					elevators[elevatorIndex].upQueue.add(chosenFloor);
        						 }
         					if(chosenFloor < elevators[elevatorIndex].currentFloor) {
-           					 elevators[elevatorIndex].downQueue.add(chosenFloor);
+           					 	elevators[elevatorIndex].downQueue.add(chosenFloor);
 					ENDSEQUENCE
 
 		ENDSEQUENCE
