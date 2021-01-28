@@ -12,7 +12,7 @@ class targetElevator {
        public int downButtonTarget = 0;
    }
 public targetElevator[] eachFloorTarget= new targetElevator[10];
-public elevators.status = new elevators [UP, DOWN, IDLE, isTmpStay] ]
+public elevators.status = new elevators [up, down, idle, isTmpStay] ]
 
 DEFINE Elevator USING Id AND Button AND Direction AND maximumCapacity AND Position AND Door AND Display AND floor AND speed
     FOR EACH NEW INTANCE OF Elevator
@@ -140,8 +140,15 @@ ENDSEQUENCE
 SEQUENCE CLOSE_BUTTON
 FOR increment of i  to i = 2 
 IF elevator = stop THEN
-	IF close_door button is pressed && capacity < maximumCapacity && door.path is clear && wait 5 secongs THEN
-		“close door”
+	IF close_door button is pressed && capacity < maximumCapacity && door.path is clear && wait 5 seconds THEN
+	check if a human is on the door path
+	IF there is a human is on the door path DO ALERT
+    
+    WHILE there is a human is on the door path
+			wait 2 seconds
+			check if a human is on the door path
+	ELSE IF there is no human is on the door path DO
+		CLOSE ELEVATOR
 ELSE IF elevator != “at a floor” THEN
 	IF close_door button is pressed THEN
 		do nothing
@@ -164,81 +171,39 @@ ELSE
 	do nothing
 END SEQUENCE 
 
+SEQUENCE Scenario 1 { outsideCurFloor: 3, upButtonTarget, elevator A: [status: idle, current_floor: 2] elevator B: [status: idle, current_floor: 6]}
+	CALL OUTSIDE upORDER
+	RETURN Elevator A is nearestElevatorIndex 
+	CALL INSIDE ORDER
+	RETURN Stop at 7th floor
+END SEQUENCE
 
-WHILE currentQueue != blank OR nextQueue != blank &&  capacity <= maximumCapacity DO
-	MOVE
-	ELSE continue
-	IF CALL_BUTTON = pressed THEN RUN OUTSIDE ORDER
-		IF elevator = Closest Elevator  && same direction to the callFloor, THEN ACCEPT THE PASSENGER.
-		IF elevator1 = elevator2 = Same distance to the callFloor, THEN RightElevator ACCEPT THE PASSENGER. 
-		IF Both Elevator Idle THEN Closet Elevator ACCEPT THE PASSENGER.
-		IF One idle and one moving opposite direction THEN idle ACCEPT A PASSENGER.
-		IF One idle and one moving same direction THEN one moving same direction ACCEPT A PASSENGER.
-ACCEPT A PASSENGER
-WHILE elevator door is open DO CALL CLOSE_BUTTON
-	wait 5 seconds
-	check if a human is on the door path
-	IF there is a human is on the door path DO
-    
-    WHILE there is a human is on the door path
-			wait 2 seconds
-			check if a human is on the door path
-	ELSE IF there is no human is on the door path DO
-		CLOSE ELEVATOR
-		IF next_floor in currentQueue > current_floor THEN
-			IF selected_floor_button > current_floor THEN
-				add to currentQueue
-			ELSE
-				add to nextQueue
-		ELSE
-			IF selected_floor_button < current_floor THEN
-				add to currentQueue
-			ELSE
-				add to nextQueue
-	ELSE IF door close button pressed DO
-		check if a human is on the door path
-			IF human is on the door path DO
-				nothing
-			ELSE
-				CLOSE ELEVATOR
-ELSE
-	MOVE
-CALL INSIDE ORDER
-IF currentQueue OR nextQueue != AND call_button = pressed THEN
-	IF next_floor in currentQueue > elevator floor THEN
-		IF call_button floor > elevator floor THEN
-			add to currentQueue
-		ELSE
-			add to nextQueue
-	ELSE
-		IF call_button floor < elevator floor THEN
-			add to currentQueue
-		ELSE
-			add to nextQueue
-ELSE
-	MOVE
+SEQUENCE Scenario 2 {Elevator A: [idle, 10], Elevator B: [idle, 3], outsideCurFloor: 1 st, upButtonTarget, floorTarget: 6 }
+	CALL OUTSIDE upORDER
+	RETURN Elevator B is nearestElevatorIndex [B is the nearest idle]
+	CALL INSIDE upORDER
+	RETURN Stop at 6th floor
+		SEQUENCE Scenario 2, 2 mins later {outsideCurFloor: 3rd, upButtonTarget, floorTarget: 5th Elevator A: [idle, 10 th], Elevator B:[up, 6]}
+			CALL OUTSIDE upORDER
+			RETURN Elevator A is nearestElevatorIndex [A is the only idle]
+			CALL INSIDE upORDER
+			RETURN: Stop at 5th floor.
+		ENDSEQUENCE
+		SEQUENCE Scenario 2, {outsideCurFloor: 9, downButtonTarget, floorTarget: 2, elevator A: [up, 5], elevator B: [up, 6]}
+			CALL OUTSIDE downORDER
+			RETURN Elevator B is nearestElevatorIndex [(9 -6) < (9 -5)]
+			CALL INSIDE downORDER
+			Return Stop at 9th floor.
+		ENDSEQUENCE
+ENDSEQUENCE
 
-MOVE
-WHILE currentQueue AND nextQueue have floors in them DO
-	IF next_floor in currentQueue > current_floor THEN
-GO up		ARRIVE AT DESTINATION
-	ELSE IF next_floor in currentQueue < current_floor THEN
-		speed = maximum
-		ARRIVE AT DESTINATION
-	ELSE IF no floor in currentQueue THEN
-		currentQueue = nextQueue
-		nextQueue = blank
-ELSE
-CALL REST
- ARRIVE AT DESTINATION
-FOR increment of i to i = 2
-IF speed = maximum THEN
-	IF current_floor = next_floor in currentQueue - 1 THEN
-		slow down
-		stop at next_floor in currentQueue
-ELSE IF speed = maximum THEN
-	IF current_floor = next_floor in currentQueue + 1 THEN
-		slow down
-		stop at next_floor in currentQueue
-ELSE IF currentQueue and nextQueue = blank THEN
-CALL REST
+SEQUENCE Scenario 3 [ current_floor: 3, floorTarget: 2, downButtonTarget, A: [idle, 10], B: [busy, 3-6]]
+		CALL OUTSIDE downORDER
+		RETURN Elevator A is nearestElevatorIndex [ idle go]
+		CALL INSIDE down
+		RETURN Stop at 2nd floor.
+			SEQUENCE Scenario 3 {current_floor: 10, downButtonTarget, floorTarget: 3, A: [idle, 2nd], B: [idle, 6]}
+			CALL OUTSIDE downORDER
+			RETURN Elevator B is nearestElevatorIndex [(10-6) < (10 -2)]
+			ENDSEQUENCE
+ENDSEQUENCE
