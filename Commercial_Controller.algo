@@ -9,10 +9,14 @@ DEFINE building USING battery AND column AND floors
 		FOR EACH column INIT NEW INSTANCE of floors END FOR
 	ENDSEQUENCE
 ENDDEFINE
+DEFINE Floor USING RC AND NEAREST_FLOOR AND HIGHEST_FLOOR ENDDEFINE
+DEFINE PASSENGER USING ARRIVAL_TIME AND ARRIVAL_FLOOR AND DESTINATION
+	DESTINATION.direction = [up, down];
+ENDDEFINE
 
 SEQUENCE ORDER USING current_floor AND Direction
 		FOR  increment of i  to i = 12 
-				IF floorTarget = elevator.floors[] && elevator Direction = request Direction
+				IF floorTarget = elevator.floors[] || elevator.next_floor = current_floor 
 				RETURN colunn number AND elevator number 
 					IF elevator number = idle || isTmpStay
 						CALL MOVE TO current_floor  
@@ -20,8 +24,8 @@ SEQUENCE ORDER USING current_floor AND Direction
 						CALL CLOSE_BUTTON 
 						CALL REST
 		 		ELSE ADD ORDER TO elevator.Queue
+		
 ENDSEQUENCE
-
 ENDSEQUENCE
 SEQUENCE OPEN_DOOR
 FOR increment of i  to i = 12
@@ -64,6 +68,23 @@ ELSE IF speed = maximum THEN
 	ELSE
 		continue
 ELSE
-	do MOVE TO middle Column For optimize effiency
+	do if next_floor = 0 THEN
+	SET next_floor = 1st Floor
 
 END SEQUENCE 
+
+-----Senario 1 ----
+SEQUENCE Senario 1 USING current_floor = RC AND elevator.next_floor = RC
+RETURN elevator B5 TAKE ORDER
+ENDSEQUENCE
+-----Senario 2 -----
+SEQUENCE Senario 2 USING current_floor = RC 
+RETURN elevator C1 TAKE ORDER
+ENDSEQUENCE
+----Senario 3 ----
+SEQUENCE Senario 3  USING elevator.next_floor = RC
+RETURN elevator D1 TAKE ORDER
+---- Senario 4 ----
+SEQUENCE Senario 4 USING elevator.next_floor = RC
+RETURN elevator A4 TAKE ORDER
+
