@@ -10,22 +10,24 @@ DEFINE building USING battery AND column AND floors
 	ENDSEQUENCE
 ENDDEFINE
 DEFINE Floor USING RC AND NEAREST_FLOOR AND HIGHEST_FLOOR ENDDEFINE
-DEFINE PASSENGER USING ARRIVAL_TIME AND ARRIVAL_FLOOR AND DESTINATION
+DEFINE PASSENGER USING ARRIVAL_TIME AND floorTarget AND DESTINATION
 	DESTINATION.direction = [up, down];
 ENDDEFINE
 
 SEQUENCE ORDER USING current_floor AND Direction
-		FOR  increment of i  to i = 12 
-				IF floorTarget = elevator.floors[] || elevator.next_floor = current_floor 
-				RETURN colunn number AND elevator number 
-					IF elevator number = idle || isTmpStay
-						CALL MOVE TO current_floor  
-						CALL OPEN_DOOR WITH current_floor
-						CALL CLOSE_BUTTON 
-						CALL REST
-		 		ELSE ADD ORDER TO elevator.Queue
-		
+	FOR  increment of i  to i = 12 
+		IF floorTarget = elevator.floors[] OR elevator.next_floor = 1st floor 
+	RETURN colunn number AND elevators number 
+	CALL MOVE TO current_floor  
+	CALL OPEN_DOOR WITH current_floor
+	CALL CLOSE_BUTTON 
+	CALL MOVEBACK To 1st floor
+	CALL REST
+	ELSE ADD ORDER TO elevator.nextfloor
 ENDSEQUENCE
+SEQUENCE MOVE BACK
+IF next_floor = empty
+SET next_floor = 1st floor
 ENDSEQUENCE
 SEQUENCE OPEN_DOOR
 FOR increment of i  to i = 12
@@ -68,7 +70,7 @@ ELSE IF speed = maximum THEN
 	ELSE
 		continue
 ELSE
-	do if next_floor = 0 THEN
+	do if next_floor = empty THEN
 	SET next_floor = 1st Floor
 
 END SEQUENCE 

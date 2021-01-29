@@ -24,40 +24,44 @@ class targetElevator {
    }
 public targetElevator[] eachFloorTarget= new targetElevator[10];
 public elevators.status = new elevators [up, down, idle, isTmpStay] ]
-SEQUENCE OUTSIDE downORDER USING outsideCurFloor AND elevator.currentFloor
-		FOR  increment of i  to i =2  {
-            SET currentElevator to element i of elevators
-            IF currentElevator status IS down
-            	int nearestElevatorIndex = 0;
-            	int busyElevator = eachFloorTarget[outsideCurFloor].downButtonTarget;
-            	if elevator WITH SAME Direction AND NOT MOVING AND current_floor >= outsideCurFloor
-					RETURN GO GET THE PASSENGER
-				
-				IF elevator WITH idle
-					nearestElevator GO GET THE PASSENGER
 
-				IF elevators are moving 
-					IF outsideCurFloor - elevators.current_floor > 0 THEN add. upQueue
-		 			IF outsideCurFloor - elevators.current_floor < 0 THEN add. downQueue
-					ELESE IF outsideCurFloor - elevators.current_floor = 0 THEN add. upQueue
+
+SEQUENCE OUTSIDE downORDER USING outsideCurFloor AND elevator.currentFloor
+FOR  increment of i  to i =2  {
+SET currentElevator to element i of elevators
+IF currentElevator status IS down
+    int nearestElevatorIndex = 0;
+    int busyElevator = eachFloorTarget[outsideCurFloor].downButtonTarget;
+    IF elevator WITH SAME Direction AND NOT MOVING AND current_floor >= outsideCurFloor
+		RETURN GO GET THE PASSENGER
+
+IF elevator WITH idle
+	nearestElevator GO GET THE PASSENGER
+
+IF elevators are moving 
+	IF outsideCurFloor - elevators.current_floor > 0 THEN add. upQueue
+	IF outsideCurFloor - elevators.current_floor < 0 THEN add. downQueue
+	ELESE IF outsideCurFloor - elevators.current_floor = 0 THEN add. upQueue
 
 ENDSEQUENCE
-SEQUENCE OUTSIDE upORDER USING outsideCurFloor AND elevator currentFloor
-		FOR  increment of i  to i =2  {
-            SET currentElevator to element i of elevators
-            IF currentElevator status IS down
-            	int nearestElevatorIndex = 0;
-            	int busyElevator = eachFloorTarget[outsideCurFloor].upButtonTarget;
-            	if elevator WITH SAME Direction AND NOT MOVING AND current_floor >= outsideCurFloor
-					RETURN GO GET THE PASSENGER
-				
-				IF elevator WITH idle
-					nearestElevator GO GET THE PASSENGER
 
-				IF elevators are moving 
-					IF outsideCurFloor - elevators.current_floor > 0 THEN add. upQueue
-		 			IF outsideCurFloor - elevators.current_floor < 0 THEN add. downQueue
-					ELESE IF outsideCurFloor - elevators.current_floor = 0 THEN add. upQueue
+SEQUENCE OUTSIDE upORDER USING outsideCurFloor AND elevator currentFloor
+FOR  increment of i  to i =2  {
+SET currentElevator to element i of elevators
+    IF currentElevator status IS down
+    int nearestElevatorIndex = 0;
+    int busyElevator = eachFloorTarget[outsideCurFloor].upButtonTarget;
+	
+	IF elevator WITH SAME Direction AND NOT MOVING AND current_floor >= outsideCurFloor
+	RETURN GO GET THE PASSENGER
+				
+	IF elevator WITH idle
+	nearestElevator GO GET THE PASSENGER
+
+	IF elevators are moving 
+		IF outsideCurFloor - elevators.current_floor > 0 THEN add. upQueue
+		IF outsideCurFloor - elevators.current_floor < 0 THEN add. downQueue
+		ELSE IF outsideCurFloor - elevators.current_floor = 0 THEN add. upQueue
 
 ENDSEQUENCE
 
