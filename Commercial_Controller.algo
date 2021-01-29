@@ -1,109 +1,30 @@
-CLASS elevators = new elevators [ButtonList, Direction, maximumCapacity, Position, Door, Display, amountOffFloor AND speed]]
-floors = new floors [10] 
-Button = new Button[insideFloorButtons, outsideFloorButtons, outsideupButtons, outsidedownButtons, openButton, closeButton];
-elevators = new elevators [2];
-Button.insideFloorButtons = new Button[10];
-Button.outsideFloorButtons = new Button[10];
-Button.outsideupButtons = new Button[1]
-Button.outsidedownButtons = new Button[1]
-Button.openButton = new Button();
-class targetElevator {
-       public int upButtonTarget = 0;
-       public int downButtonTarget = 0;
-   }
-public targetElevator[] eachFloorTarget= new targetElevator[10];
-public elevators.status = new elevators [up, down, idle, isTmpStay] ]
+DEFINE building USING battery AND column AND floors
+	SEQUENCE create battery USING elevator
+		FOR n elevatos INIT NEW INSTANCE of battery END FOR
+	ENDSEQUENCE
+	SEQUENCE create columns USING elevator
+		FOR n elevatos INIT NEW INSTANCE of column END FOR
+	ENDSEQUENCE
+	SEQUENCE create floors USING columns
+		FOR EACH column INIT NEW INSTANCE of floors END FOR
+	ENDSEQUENCE
+ENDDEFINE
 
-DEFINE Elevator USING Id AND Button AND Direction AND maximumCapacity AND Position AND Door AND Display AND floor AND speed
-        SET Id TO id
-        SET ButtonList WITH Button
-        SET Position TO currentFloor Id
-        SET Status TO Idle
-        SET Door TO close
-        SET Display TO Position
-        ADD 1 TO count
-		SET speed TO 0
-
-SEQUENCE OPEN_BUTTON INIT elevatorIndex AND ADD TO elevatorIndex upQueue AND elevatorIndex downQueue
-   			FOR selected elevator = elevatorIndex
-            if(elevators[elevatorIndex].isTmpStay == true || elevators[elevatorIndex].status == Elevator.Idle) {
-                if (elevators[elevatorIndex].status == Elevator.up || elevators[elevatorIndex].status == Elevator.Idle) {
-                    elevators[elevatorIndex].upQueue.add(elevators[elevatorIndex].currentFloor);
-                } else if (elevators[elevatorIndex].status == Elevator.down) {
-                    elevators[elevatorIndex].downQueue.add(elevators[elevatorIndex].currentFloor);
+SEQUENCE ORDER USING current_floor AND Direction
+		FOR  increment of i  to i = 12 
+				IF floorTarget = elevator.floors[] && elevator Direction = request Direction
+				RETURN colunn number AND elevator number 
+					IF elevator number = idle || isTmpStay
+						CALL MOVE TO current_floor  
+						CALL OPEN_DOOR WITH current_floor
+						CALL CLOSE_BUTTON 
+						CALL REST
+		 		ELSE ADD ORDER TO elevator.Queue
 ENDSEQUENCE
 
-SEQUENCE OUTSIDE downORDER USING outsideCurFloor AND elevator.currentFloor
-		FOR  increment of i  to i =2  {
-            SET currentElevator to element i of elevators
-            IF currentElevator status IS down
-            	int nearestElevatorIndex = 0;
-            	int busyElevator = eachFloorTarget[outsideCurFloor].downButtonTarget;
-            	if(currentElevator != busyElevator && elevators[i].status == Elevator.down && elevators[i].currentFloor>= outsideCurFloor) {
-                	int distance = elevators[i].currentFloor - outsideCurFloor;
-               		 nearestElevatorIndex = i;
-
-            IF currentElevator status IS Idle   
-           		if(elevators[i].status == Elevator.Idle) {
-            		distance = Math.abs(outsideCurFloor-elevators[i].currentFloor);
-           			nearestElevatorIndex = i;
-
-		 	if(nearestElevatorIndex != 0) {
-            	if(outsideCurFloor - elevators[nearestElevatorIndex].currentFloor > 0) {
-            		elevators[nearestElevatorIndex].upQueue.add(outsideCurFloor);
-            	} else if(outsideCurFloor - elevators[nearestElevatorIndex].currentFloor < 0){
-            		elevators[nearestElevatorIndex].downQueue.add(outsideCurFloor);
-            		} else if(outsideCurFloor - elevators[nearestElevatorIndex].currentFloor == 0) {
-            			elevators[nearestElevatorIndex].upQueue.add(outsideCurFloor);
-            			}
-            eachFloorTarget[outsideCurFloor].upButtonTarget = nearestElevatorIndex;
-        }}
 ENDSEQUENCE
-SEQUENCE OUTSIDE upORDER USING outsideCurFloor AND elevator currentFloor
-		FOR  increment of i  to i =2 
-            SET currentElevator to element i of elevators
-            int nearestElevatorIndex = 0;
-            int busyElevator = eachFloorTarget[outsideCurFloor].upButtonTarget;
-            IF currentElevator status IS up
-           		if(currentElevator != busyElevator && elevators[i].status == Elevator.up && elevators[i].currentFloor>= outsideCurFloor) {
-                	int distance = elevators[i].currentFloor - outsideCurFloor;
-                	nearestElevatorIndex = i;
-
-            IF currentElevator status IS Idle  
-           		if(elevators[i].status == Elevator.Idle) {
-           	 		distance = Math.abs(outsideCurFloor-elevators[i].currentFloor);
-            		nearestElevatorIndex = i;
-
-
-		 	if(nearestElevatorIndex != 0) {
-            	if(outsideCurFloor - elevators[nearestElevatorIndex].currentFloor > 0) {
-                	elevators[nearestElevatorIndex].upQueue.add(outsideCurFloor);
-           		 } else if(outsideCurFloor - elevators[nearestElevatorIndex].currentFloor < 0){
-                	elevators[nearestElevatorIndex].downQueue.add(outsideCurFloor);
-            	} else if(outsideCurFloor - elevators[nearestElevatorIndex].currentFloor == 0) {
-                	elevators[nearestElevatorIndex].upQueue.add(outsideCurFloor);
-            	}
-            eachFloorTarget[outsideCurFloor].upButtonTarget = nearestElevatorIndex;
-        	}}
-ENDSEQUENCE
-
-SEQUENCE CHOOSE FLOOR USING ADD to upQueue downQueue TO elevatorIndex
-	FOR selected elevator = 
-       	 if(elevators[elevatorIndex].currentFloor != chosenFloor) {
-            insideFloorButtons[chosenFloor] GET GREEN COLOR
-        	}
-        if(chosenFloor > elevators[elevatorIndex].currentFloor) {
-            elevators[elevatorIndex].upQueue.add(chosenFloor);
-       	    }
-        if(chosenFloor < elevators[elevatorIndex].currentFloor) {
-        	elevators[elevatorIndex].downQueue.add(chosenFloor);
-ENDSEQUENCE
-
-		
-ENDSEQUENCE
-
 SEQUENCE OPEN_DOOR
-FOR increment of i  to i = 2 
+FOR increment of i  to i = 12
 IF elevator = stop THEN
 	IF open_door button is pressed THEN
 		“open door”
@@ -113,9 +34,8 @@ ELSE IF elevator != “at a floor” THEN
 ELSE
 	do nothing
 ENDSEQUENCE
-
 SEQUENCE CLOSE_BUTTON
-FOR increment of i  to i = 2 
+FOR increment of i  to i = 12
 IF elevator = stop THEN
 	IF close_door button is pressed && capacity < maximumCapacity && door.path is clear && wait 5 seconds THEN
 	check if a human is on the door path
@@ -132,9 +52,8 @@ ELSE IF elevator != “at a floor” THEN
 ELSE
 	do nothing
 ENDSEQUENCE
-
 SEQUENCE REST 
-FOR increment of i to i = 2
+FOR increment of i to i = 12
 IF current_floor = next_floor in currentQueue - 1 THEN
 	 slow down speed =  0.5speed;
 	stop at next_floor in currentQueue
@@ -145,48 +64,6 @@ ELSE IF speed = maximum THEN
 	ELSE
 		continue
 ELSE
-	do nothing
+	do MOVE TO middle Column For optimize effiency
+
 END SEQUENCE 
-
------- Scenario 1 -----------
-SEQUENCE  USING outsideCurFloor: 3 AND upButtonTarget AND elevator A: [status: idle, current_floor: 2] AND elevator B: [status: idle, current_floor: 6]}
-	CALL OUTSIDE upORDER
-	RETURN Elevator A is nearestElevatorIndex 
-	CALL INSIDE ORDER
-	RETURN Stop at 7th floor
-END SEQUENCE
-
--------- Scenario 2-----
-SEQUENCE  USING Elevator A: [idle, 10] AND Elevator B: [idle, 3] AND  outsideCurFloor: 1 st AND upButtonTarget AND floorTarget: 6 }
-	CALL OUTSIDE upORDER
-	RETURN Elevator B is nearestElevatorIndex [B is the nearest idle]
-	CALL INSIDE upORDER
-	RETURN Stop at 6th floor
-ENDSEQUENCE
-
-SEQUENCE  USING outsideCurFloor: 3rd AND upButtonTarget AND floorTarget: 5th AND Elevator A: [idle, 10 th] AND Elevator B:[up, 6]}
-			CALL OUTSIDE upORDER
-			RETURN Elevator A is nearestElevatorIndex [A is the only idle]
-			CALL INSIDE upORDER
-			RETURN: Stop at 5th floor.
-ENDSEQUENCE
-
-SEQUENCE Scenario 2, USING outsideCurFloor: 9 AND downButtonTarget AND floorTarget: 2 AND elevator A: [up, 5] AND elevator B: [up, 6]}
-			CALL OUTSIDE downORDER
-			RETURN Elevator B is nearestElevatorIndex [(9 -6) < (9 -5)]
-			CALL INSIDE downORDER
-			Return Stop at 9th floor.
-ENDSEQUENCE
-
-
----- Scenario3 ------
-SEQUENCE  USING current_floor: 3 AND floorTarget: 2 AND downButtonTarget AND A: [idle, 10] B: [busy, 3-6]]
-		CALL OUTSIDE downORDER
-		RETURN Elevator A is nearestElevatorIndex [ idle go]
-		CALL INSIDE down
-		RETURN Stop at 2nd floor.
-ENDSEQUENCE
-SEQUENCE  USING current_floor: 10 AND downButtonTarget AND floorTarget: 3 AND A: [idle, 2nd] AND B: [idle, 6]}
-			CALL OUTSIDE downORDER
-			RETURN Elevator B is nearestElevatorIndex [(10-6) < (10 -2)]
-ENDSEQUENCE
