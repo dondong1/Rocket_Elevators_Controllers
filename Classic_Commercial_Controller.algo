@@ -1,0 +1,125 @@
+DEFINE building USING battery AND column AND floors
+	SEQUENCE create battery USING elevator
+		FOR n elevatos INIT NEW INSTANCE of battery END FOR
+	ENDSEQUENCE
+	SEQUENCE create columns USING elevator
+		FOR n elevatos INIT NEW INSTANCE of column END FOR
+	ENDSEQUENCE
+	SEQUENCE create floors USING columns
+		FOR EACH column INIT NEW INSTANCE of floors END FOR
+	ENDSEQUENCE
+ENDDEFINE
+DEFINE Floor USING RC AND NEAREST_FLOOR AND HIGHEST_FLOOR ENDDEFINE
+DEFINE PASSENGER USING ARRIVAL_TIME AND floorTarget AND DESTINATION
+	DESTINATION.direction = [up, down];
+ENDDEFINE
+
+SEQUENCE OUTSIDE downORDER USING outsideCurFloor AND elevator.currentFloor
+FOR  EACH ELEVATOR
+IF currentElevator status IS down AND elevator.current_floor >= outsideCurFloor
+		INCREASE THE nearestElevatorIndex by 1
+ENDFOR
+
+FOR EACH ELEVATOR 
+IF nearest elevator WITH idle
+	nearestElevator GET INCREASE THE nearestElevatorIndex by 1
+ENDFOR
+
+IF nearest elevators are NOT 0   THEN  
+	IF outsideCurFloor - elevators.current_floor > 0 THEN add. upQueue`
+	IF outsideCurFloor - elevators.current_floor < 0 THEN add. downQueue
+	ELESE IF outsideCurFloor - elevators.current_floor = 0 THEN add. downQueue
+
+ENDSEQUENCE
+
+SEQUENCE ` USING outsideCurFloor AND elevator currentFloor
+FOR  increment of i  to i =2  {
+SET currentElevator to element i of elevators
+    IF currentElevator status IS down
+    int nearestElevatorIndex = 0;
+    int busyElevator = eachFloorTarget[outsideCurFloor].upButtonTarget
+	IF elevator WITH SAME Direction AND NOT MOVING AND current_floor >= outsideCurFloor
+	RETURN nearestElevatorIndex = i
+END FOR				
+
+FOR each elevator 
+	IF elevator WITH idle
+	nearestElevatorIndex = i
+END FOR
+
+IF nearestElevatorIndex !=0
+	IF outsideCurFloor - elevators.current_floor > 0 THEN add. upQueue
+	IF outsideCurFloor - elevators.current_floor < 0 THEN add. downQueue
+	ELSE IF outsideCurFloor - elevators.current_floor = 0 THEN add. upQueue
+
+ENDSEQUENCE
+
+SEQUENCE CHOOSE FLOOR FROM INSIDE ELEVATOR USING chosenFloor AND elevator currentFloor ADD to upQueue downQueue TO elevatorIndex
+	FOR EACH  selected elevator
+		IF elevators current_floor NOT chosenFloor THEN DISPLAY on
+		IF chosenFloor > elevator.current_floor THEN add upQueue
+		IF chosenFloor < elevator.current_floor THEN add downQueue
+    END FOR  
+ENDSEQUENCE
+
+SEQUENCE OPEN_DOOR
+FOR increment of i  to i = 12
+IF elevator = stop THEN
+	IF open_door button is pressed THEN
+		“open door”
+ELSE IF elevator != “at a floor” THEN
+	IF open_door button is pressed THEN
+		do nothing
+ELSE
+	do nothing
+ENDSEQUENCE
+SEQUENCE CLOSE_BUTTON
+FOR increment of i  to i = 12
+IF elevator = stop THEN
+	IF close_door button is pressed && capacity < maximumCapacity && door.path is clear && wait 5 seconds THEN
+	check if a human is on the door path
+	IF there is a human is on the door path DO ALERT
+    
+    WHILE there is a human is on the door path
+			wait 2 seconds
+			check if a human is on the door path
+	ELSE IF there is no human is on the door path DO
+		CLOSE ELEVATOR
+ELSE IF elevator != “at a floor” THEN
+	IF close_door button is pressed THEN
+		do nothing
+ELSE
+	do nothing
+ENDSEQUENCE
+SEQUENCE REST 
+FOR increment of i to i = 12
+IF current_floor = next_floor in currentQueue - 1 THEN
+	 slow down speed =  0.5speed;
+	stop at next_floor in currentQueue
+ELSE IF speed = maximum THEN
+	IF current_floor = next_floor in currentQueue + 1 THEN
+		slow down speed = 0.5 speed;
+		stop at next_floor in currentQueue
+	ELSE
+		continue
+ELSE
+	do if next_floor = empty THEN
+	SET next_floor = 1st Floor
+
+END SEQUENCE 
+
+-----Senario 1 ----
+SEQUENCE Senario 1 USING current_floor = RC AND elevator.next_floor = RC
+RETURN elevator B5 TAKE ORDER
+ENDSEQUENCE
+-----Senario 2 -----
+SEQUENCE Senario 2 USING current_floor = RC 
+RETURN elevator C1 TAKE ORDER
+ENDSEQUENCE
+----Senario 3 ----
+SEQUENCE Senario 3  USING elevator.next_floor = RC
+RETURN elevator D1 TAKE ORDER
+---- Senario 4 ----
+SEQUENCE Senario 4 USING elevator.next_floor = RC
+RETURN elevator A4 TAKE ORDER
+
