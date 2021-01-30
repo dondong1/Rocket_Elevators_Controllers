@@ -1,5 +1,3 @@
--->// First I define the Objects that I am going to use in the my pseudo code: They are Elevators and Buttons. //
-
 
 DEFINE Elevator USING Id AND Button AND Direction AND maximumCapacity AND Position AND Door AND Display AND floor AND speed
         SET Id TO id
@@ -26,24 +24,19 @@ class targetElevator {
 public targetElevator[] eachFloorTarget= new targetElevator[10];
 public elevators.status = new elevators [up, down, idle, isTmpStay] ]
 
-
--->//From any floors of the building, 
--->//a customer use an elevator would either want to go UP or DOWN: Therefore I will define how the elevator will handle an UP and DOWN order from the hall:  <--
-
 SEQUENCE OUTSIDE downORDER USING outsideCurFloor AND elevator.currentFloor
 FOR  EACH ELEVATOR
-
 IF currentElevator status IS down AND elevator.current_floor >= outsideCurFloor
 		INCREASE THE nearestElevatorIndex by 1
-
 ENDFOR
+
 FOR EACH ELEVATOR 
 IF nearest elevator WITH idle
 	nearestElevator GET INCREASE THE nearestElevatorIndex by 1
 ENDFOR
 
 IF nearest elevators are NOT 0   THEN  
-	IF outsideCurFloor - elevators.current_floor > 0 THEN add. upQueue
+	IF outsideCurFloor - elevators.current_floor > 0 THEN add. upQueue`
 	IF outsideCurFloor - elevators.current_floor < 0 THEN add. downQueue
 	ELESE IF outsideCurFloor - elevators.current_floor = 0 THEN add. downQueue
 
@@ -54,8 +47,7 @@ FOR  increment of i  to i =2  {
 SET currentElevator to element i of elevators
     IF currentElevator status IS down
     int nearestElevatorIndex = 0;
-    int busyElevator = eachFloorTarget[outsideCurFloor].upButtonTarget;
-	
+    int busyElevator = eachFloorTarget[outsideCurFloor].upButtonTarget
 	IF elevator WITH SAME Direction AND NOT MOVING AND current_floor >= outsideCurFloor
 	RETURN nearestElevatorIndex = i
 END FOR				
@@ -64,10 +56,11 @@ FOR each elevator
 	IF elevator WITH idle
 	nearestElevatorIndex = i
 END FOR
-	IF nearestElevatorIndex !=0
-		IF outsideCurFloor - elevators.current_floor > 0 THEN add. upQueue
-		IF outsideCurFloor - elevators.current_floor < 0 THEN add. downQueue
-		ELSE IF outsideCurFloor - elevators.current_floor = 0 THEN add. upQueue
+
+IF nearestElevatorIndex !=0
+	IF outsideCurFloor - elevators.current_floor > 0 THEN add. upQueue
+	IF outsideCurFloor - elevators.current_floor < 0 THEN add. downQueue
+	ELSE IF outsideCurFloor - elevators.current_floor = 0 THEN add. upQueue
 
 ENDSEQUENCE
 
@@ -76,7 +69,7 @@ SEQUENCE CHOOSE FLOOR FROM INSIDE ELEVATOR USING chosenFloor AND elevator curren
 		IF elevators current_floor NOT chosenFloor THEN DISPLAY on
 		IF chosenFloor > elevator.current_floor THEN add upQueue
 		IF chosenFloor < elevator.current_floor THEN add downQueue
-       
+    END FOR  
 ENDSEQUENCE
 
 ENDSEQUENCE
