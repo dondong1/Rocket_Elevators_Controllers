@@ -16,14 +16,10 @@ ENDDEFINE
 
 SEQUENCE ORDER USING current_floor AND Direction
 	FOR  increment of i  to i = 12 
-		IF floorTarget = elevator.floors[] OR elevator.next_floor = 1st floor 
+		IF floorTarget === elevator.floors[] OR elevator.next_floor = 1st floor 
 	RETURN colunn number AND elevators number 
-	CALL MOVE TO current_floor  
-	CALL OPEN_DOOR WITH current_floor
-	CALL CLOSE_BUTTON 
-	CALL MOVEBACK To 1st floor
-	CALL REST
-	ELSE ADD ORDER TO elevator.nextfloor
+	WHEN elevator.floor === floorTarget
+	SET elevator.next_floor = 1st floor
 ENDSEQUENCE
 SEQUENCE MOVE BACK
 IF next_floor = empty
