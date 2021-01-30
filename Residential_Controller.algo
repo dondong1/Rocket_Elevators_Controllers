@@ -1,3 +1,4 @@
+-->// First I define the Objects that I am going to use in the my pseudo code: They are Elevators and Buttons. //
 
 
 DEFINE Elevator USING Id AND Button AND Direction AND maximumCapacity AND Position AND Door AND Display AND floor AND speed
@@ -26,22 +27,25 @@ public targetElevator[] eachFloorTarget= new targetElevator[10];
 public elevators.status = new elevators [up, down, idle, isTmpStay] ]
 
 
+-->//From any floors of the building, 
+-->//a customer use an elevator would either want to go UP or DOWN: Therefore I will define how the elevator will handle an UP and DOWN order from the hall:  <--
+
 SEQUENCE OUTSIDE downORDER USING outsideCurFloor AND elevator.currentFloor
-FOR  increment of i  to i =2  {
-SET currentElevator to element i of elevators
-IF currentElevator status IS down
-    int nearestElevatorIndex = 0;
-    int busyElevator = eachFloorTarget[outsideCurFloor].downButtonTarget;
-    IF elevator WITH SAME Direction AND NOT MOVING AND current_floor >= outsideCurFloor
-		RETURN GO GET THE PASSENGER
+FOR  EACH ELEVATOR
 
-IF elevator WITH idle
-	nearestElevator GO GET THE PASSENGER
+IF currentElevator status IS down AND elevator.current_floor >= outsideCurFloor
+		INCREASE THE nearestElevatorIndex by 1
 
-IF elevators are moving 
+ENDFOR
+FOR EACH ELEVATOR 
+IF nearest elevator WITH idle
+	nearestElevator GET INCREASE THE nearestElevatorIndex by 1
+ENDFOR
+
+IF nearest elevators are NOT 0   THEN  
 	IF outsideCurFloor - elevators.current_floor > 0 THEN add. upQueue
 	IF outsideCurFloor - elevators.current_floor < 0 THEN add. downQueue
-	ELESE IF outsideCurFloor - elevators.current_floor = 0 THEN add. upQueue
+	ELESE IF outsideCurFloor - elevators.current_floor = 0 THEN add. downQueue
 
 ENDSEQUENCE
 
@@ -53,19 +57,21 @@ SET currentElevator to element i of elevators
     int busyElevator = eachFloorTarget[outsideCurFloor].upButtonTarget;
 	
 	IF elevator WITH SAME Direction AND NOT MOVING AND current_floor >= outsideCurFloor
-	RETURN GO GET THE PASSENGER
-				
-	IF elevator WITH idle
-	nearestElevator GO GET THE PASSENGER
+	RETURN nearestElevatorIndex = i
+END FOR				
 
-	IF elevators are moving 
+FOR each elevator 
+	IF elevator WITH idle
+	nearestElevatorIndex = i
+END FOR
+	IF nearestElevatorIndex !=0
 		IF outsideCurFloor - elevators.current_floor > 0 THEN add. upQueue
 		IF outsideCurFloor - elevators.current_floor < 0 THEN add. downQueue
 		ELSE IF outsideCurFloor - elevators.current_floor = 0 THEN add. upQueue
 
 ENDSEQUENCE
 
-SEQUENCE CHOOSE FLOOR USING chosenFloor AND elevator currentFloor ADD to upQueue downQueue TO elevatorIndex
+SEQUENCE CHOOSE FLOOR FROM INSIDE ELEVATOR USING chosenFloor AND elevator currentFloor ADD to upQueue downQueue TO elevatorIndex
 	FOR EACH  selected elevator
 		IF elevators current_floor NOT chosenFloor THEN DISPLAY on
 		IF chosenFloor > elevator.current_floor THEN add upQueue
@@ -152,7 +158,7 @@ SEQUENCE Scenario 2, USING outsideCurFloor: 9 AND downButtonTarget AND floorTarg
 ENDSEQUENCE
 
 
----- Scenario3 ------
+---- Scenario3 --------
 SEQUENCE  USING current_floor: 3 AND floorTarget: 2 AND downButtonTarget AND A: [idle, 10] B: [busy, 3-6]]
 		CALL OUTSIDE downORDER
 		RETURN Elevator A is nearestElevatorIndex [ idle go]
